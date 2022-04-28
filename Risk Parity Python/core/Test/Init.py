@@ -84,7 +84,7 @@ def process(dataframe, length):
         numleft = dataframe.shape[0] - i
 
         """
-        想想最后两种情况， 剩一个数字和0个数字
+        Last two conditions, 1 or 0
         """
         if numleft == 0:
             ar = np.column_stack((ar, parray))
@@ -107,6 +107,7 @@ def process(dataframe, length):
 while curtime <= end:
     if curtime == end:
         """
+        calculate the return of the last period, save it to returns array
         计算最后一个period的收益率, 存入收益率array
         """
         wsaver = np.delete(wsaver, 0, 0)
@@ -117,7 +118,9 @@ while curtime <= end:
     adjsaver = np.append(adjsaver, srtime)
     period = dataset.truncate(before=curtime - backlen, after=curtime - datetime.timedelta(days=1))
     #计算每种资产改时间范围内的收益率 （1+R)(1+R).. 用的weight是
+    #calculate the return rate of every time period. using (1+R)(1+R)
     #计算完每一种资产的收益率后，存入累计收益率array
+    #calculated return saved to returns array
     starperiod = process(period, length)
 
     cov_matrix = pd.DataFrame.cov(starperiod)
@@ -145,7 +148,7 @@ g = sns.FacetGrid(wsaverframe, col='A股', col_wrap=5)
 print(g)
 
 """
-计算收益率区域
+calculating returns
 """
 
 dataset = pd.read_excel(
@@ -191,13 +194,17 @@ count = 1
 while curtime <= end:
     period = dataset.truncate(before=curtime - yieldfreq, after=curtime - datetime.timedelta(days=1))
     #算出每项资产的月总收益率
+    #calculate the monthly return rate of every asset
     yieldmonth = period.product()
     #把每个月的总收益率叠加
+    #stack all the return rates
     yieldframe = np.vstack((yieldframe, yieldmonth))
     #每项资产当月的收益 = 该资产权重/价值 x 该资产当月的月收益率, 再把每项资产当月的收益加起来为当月组合总收益率
+    #Asset return calculation: weight * montly return rate, then combine every single asset to calculate the monthly return rate
     result = np.sum(np.multiply(curweight, yieldmonth))
     yieldsaver = np.append(yieldsaver, result)
     #更新每项资产当月结算后的价值百分比
+    #update the weight percentage after each month
     if curtime == end:
         break
     if count % freq == 0 and count != 0:
@@ -207,6 +214,7 @@ while curtime <= end:
     else:
         curweight = np.multiply(curweight, yieldmonth)
     #更新时间到新一个月
+    #update time to new month
     curtime += yieldfreq
     count += 1
 
@@ -217,6 +225,7 @@ print(yieldsaver)
 
 """
 画图
+graphing
 """
 
 asset1 = wsaver[:, 0]
