@@ -204,7 +204,9 @@ class CoordinateDescentOptimizer:
         为预防单一资产出现极端风险贡献的代码 
         当一项资产的波动率相对极低从而对于组合的风险贡献为极小数值甚至负数时
         直接介入主动调整该项资产的配比
-        （可否增加杠杆）                      
+        （可否增加杠杆）
+        This part is to prevent an asset with extreme volatility, this might lead to convergence failure
+        when an asset's volatility is extremely low, actively adjust the weight of the asset
         """
         if np.amin(contrib) < 0:
             np.put(wi, np.argmax(contrib), wi[np.argmax(contrib)] / 2)
